@@ -1,4 +1,4 @@
-package exemple02.db;
+package example02.db;
 
 import org.sqlite.JDBC;
 

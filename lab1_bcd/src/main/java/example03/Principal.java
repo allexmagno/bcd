@@ -1,6 +1,6 @@
-package exemple02;
+package example03;
 
-import exemple02.db.ConnectionFactory;
+import example02.db.ConnectionFactory;
 
 import java.sql.*;
 import java.util.Scanner;
@@ -11,17 +11,23 @@ public class Principal {
 
     private final String pathDB = "src/main/resources/lab01.db";
 
-    public void insert() throws Exception {
+        String query = "SELECT * FROM Pessoa";
 
+    public void list_all(){
         try(Connection connection = ConnectionFactory.getConnection();
-            Statement statement = connection.createStatement()){
-            String nome = "Allex";
-            double peso = 90;
-            int altura = 175;
-            String email = "allex@email.com";
-            String query = "INSERT INTO Pessoa " +
-                    "(nome, peso, altura, email) " +
-                    "VALUES ('" + nome + "'," + peso + ","+ altura + ",'" + email + "')";
+            PreparedStatement preparedStatement = connection.prepareStatement(query)){
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()){
+                System.out.println("Nome: " + resultSet.getString("Nome"));
+                System.out.println("Peso: " + resultSet.getDouble("Peso"));
+                System.out.println("Altura: " + resultSet.getInt("Altura"));
+                System.out.println("Email: " + resultSet.getString("Email"));
+                System.out.println("------------------------");
+            }
+
+            resultSet.close();
+
 
         }catch(Exception e){
             System.err.println("Erro: " + e.toString());
@@ -29,6 +35,29 @@ public class Principal {
 
     }
 
+    // SEM SQL injection
+    public void insert(String nome, double peso, int altura, String email) throws Exception {
+
+        String query = "INSERT INTO Pessoa (nome, peso, altura, email) " +
+                "VALUES (?,?,?,?)";
+        try(Connection connection = ConnectionFactory.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query)){
+            // String para a primeira variável que é o nome
+            preparedStatement.setString(1, nome);
+            preparedStatement.setDouble(2, peso);
+            preparedStatement.setInt(3, altura);
+            preparedStatement.setString(4, email);
+
+            int linhas = preparedStatement.executeUpdate(query);
+
+        }catch(Exception e){
+            System.err.println("Erro: " + e.toString());
+        }
+
+
+    }
+
+    // SQL injection
     public void buscarPessoa(String nome) throws Exception {
         try(Connection connection = ConnectionFactory.getConnection();
             Statement statement = connection.createStatement()){

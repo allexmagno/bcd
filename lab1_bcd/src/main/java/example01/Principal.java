@@ -1,4 +1,4 @@
-package exemple01;
+package example01;
 
 import java.sql.*;
 import java.util.Scanner;
